@@ -1,0 +1,10 @@
+export const DOB = 'DOB';
+export const GET_DOB = 'GET_DOB';
+export const AGE = 'AGE';
+export const GET_AGE = 'GET_AGE';
+export const HOBBY = 'HOBBY';
+export const GET_HOBBY = 'GET_HOBBY';
+export const VISIBILITY = 'VISIBILITY';
+export const CREATE_PROFILE = 'CREATE_PROFILE';
+export const GET_PROFILES = 'GET_PROFILES';
+export const RM_VISIBILITY = 'RM_VISIBILITY';
