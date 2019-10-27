@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "antd": "^3.24.1",
+    "rc-form-hooks": "^0.0.1-alpha.22",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-redux": "^7.1.1",

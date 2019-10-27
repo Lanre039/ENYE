@@ -6,7 +6,9 @@ import UserForm from './components/UserForm/UserForm';
 
 class App extends Component {
   render() {
+    
     return (
+      
       <div className="App">
         <UserForm />
         <div className="footer">

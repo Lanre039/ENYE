@@ -1,10 +1,9 @@
-import React, { useState} from 'react'
-// import { useSelector, useDispatch } from 'react-redux'
-import {connect} from 'react-redux'
+import React, { useState } from 'react';
+import { useSelector, useDispatch} from 'react-redux';
 import 'antd/dist/antd.css'
-import { Form, Input, Icon, Select, Button, Table, DatePicker } from 'antd'
+import { Form, Input, Icon, Select, Button, Table, DatePicker } from 'antd';
 import './UserForm.css';
-import {getProfiles, createProfile, userDob, userHobby, userStyle, rmStyle, userAge } from '../../actions'
+import {createProfile, userDob, userHobby, rmStyle, userAge } from '../../actions';
 
 
 
@@ -13,37 +12,42 @@ const { Option } = Select;
 
 
 let dob, age, hobby;
-const FormItem = Form.Item
+const FormItem = Form.Item;
 
 
   
 
-  function FormHead() {
+function FormHead() {
     const [formHead, setFormHead] = useState('Input Details Here');
   
     return (
       <div style={{fontSize: '1.5rem', paddingBottom: '1rem' }}>{formHead}</div>
     )
-  }
+ }
 
-class UserForm extends React.Component {
+function UserForm(props) {
 
 
-  componentDidMount() {
-    this.props.getProfiles();
-    console.log(this.props.userProfiles);
-    console.log(this.props.style);
-
-  }
   
-  onSelect = (value) => {
+  const listOfProfile = useSelector(state => state.form.profiles);
+  const listOfAge = useSelector(state => state.form.ages);
+  const listOfHobbies = useSelector(state => state.form.hobbies);
+  const listOfDobs = useSelector(state => state.form.dobs);
+  const tableStyle = useSelector(state => state.form.style);
+
+
+
+  const dispatch = useDispatch();
+
+  
+  const onSelect = (value) => {
     console.log(`selected ${value}`);
     hobby = `${value}`
     console.log(hobby);
-
+    
   }
   
-  onChange = (date, dateString) => {
+  const onChange = (date, dateString) => {
     console.log(date, dateString);
     
      dob = dateString;
@@ -54,33 +58,41 @@ class UserForm extends React.Component {
     age = new Date().getFullYear() - year;
     console.log(age)
 
+    
   }
+
+  const { getFieldDecorator } = props.form;
   
-  handleSubmit = e => {
+  const handleSubmit = e => {
     e.preventDefault()
-    this.props.form.validateFieldsAndScroll((err, values) => {
+    props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
       
-          this.props.form.resetFields();
+          props.form.resetFields();
 
         
         console.log('Received values of form: ', values)
-        
 
-        this.props.createProfile(values);
-        this.props.userAge(age);
-        this.props.userDob(dob);
-        this.props.userHobby(hobby);
-        this.props.rmStyle();
+        dispatch(createProfile(values));
+        dispatch(userAge(age));
+        dispatch(userDob(dob));
+        dispatch(userHobby(hobby));
+        dispatch(rmStyle());
+
+        // this.props.createProfile(values);
+        // this.props.userAge(age);
+        // this.props.userDob(dob);
+        // this.props.userHobby(hobby);
+        // this.props.rmStyle();
   
       }
     })
   
   }
   
-  renderAges = () => {
+  const renderAges = () => {
   
-    return this.props.userAges.map((age, index) => {
+    return listOfAge.map((age, index) => {
       return (
           <tr key={index}>
           <td>{age}</td>
@@ -89,8 +101,8 @@ class UserForm extends React.Component {
     });
   }
 
-  renderHobbies = () => {
-    return this.props.userHobbies.map((hobby, index) => {
+  const renderHobbies = () => {
+    return listOfHobbies.map((hobby, index) => {
       return (
         <tr key={index}>
           <td>{hobby}</td>
@@ -99,8 +111,8 @@ class UserForm extends React.Component {
     });
   }
 
-  renderDobs = () => {
-    return this.props.userDobs.map((dob, index) => {
+  const renderDobs = () => {
+    return listOfDobs.map((dob, index) => {
       return (
         <tr key={index}>
           <td>{dob}</td>
@@ -111,8 +123,8 @@ class UserForm extends React.Component {
   }
   
   
-  renderFirstName = () => {
-    return this.props.userProfiles.map((profile, index) => {
+  const renderFirstName = () => {
+    return listOfProfile.map((profile, index) => {
       return (
         <tr key={index}>
           <td>{profile.FirstName}</td>
@@ -122,8 +134,8 @@ class UserForm extends React.Component {
     });
   }
 
-  renderLastName = () => {
-    return this.props.userProfiles.map((profile, index) => {
+  const renderLastName = () => {
+    return listOfProfile.map((profile, index) => {
       return (
         <tr key={index}>
           <td>{profile.LastName}</td>
@@ -133,13 +145,8 @@ class UserForm extends React.Component {
   }
   
 
-  render() {
-    const { getFieldDecorator } = this.props.form;
-   
-   
-    console.log(this.props);
-    const columns = [
-      {
+  const columns = [
+    {
         title: 'First Name',
         dataIndex: 'fname',
       },
@@ -163,19 +170,19 @@ class UserForm extends React.Component {
     const data = [
       {
         key: '1',
-        fname: this.renderFirstName(),
-        lname: this.renderLastName(),
-        dob: this.renderDobs(),
-        age: this.renderAges(),
-        hobby: this.renderHobbies()
+        fname: renderFirstName(),
+        lname: renderLastName(),
+        dob: renderDobs(),
+        age: renderAges(),
+        hobby: renderHobbies()
       }
     ]
-    
+
     return (
       <div className="data-form">
         <div className="form">
           <FormHead />
-        <Form inline="true" onSubmit={this.handleSubmit}>
+        <Form inline="true" onSubmit={handleSubmit}>
         <FormItem>
           {getFieldDecorator('FirstName', {
             rules: [{ required: true, message: 'Please input your username!' }],
@@ -196,7 +203,7 @@ class UserForm extends React.Component {
           })(
             <div>
               <span style={{fontSize: "1rem", fontWeight: 200 }}>Date of Birth:</span>
-             <DatePicker onChange={this.onChange} />
+             <DatePicker onChange={onChange} />
           </div>
           )}
         </FormItem>
@@ -209,7 +216,7 @@ class UserForm extends React.Component {
             placeholder="Select hobby"
             autoClearSearchValue={true}
             optionFilterProp="children"
-            onSelect={this.onSelect}
+            onSelect={onSelect}
             filterOption={(input, option) =>
               option.props.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
@@ -227,7 +234,7 @@ class UserForm extends React.Component {
       </Form>
       </div>
       <hr/>
-        <div style={this.props.tableStyle}>
+        <div style={tableStyle}>
         <h4 style={{fontSize: "1.5rem"}}>Here are the details you filled above.</h4>
         <Table columns={columns} dataSource={data} size="middle" />
         
@@ -235,24 +242,31 @@ class UserForm extends React.Component {
         
       </div>
     )
-  }
+
 }
 
 
 
-const HorizontalUserForm = Form.create({ name: 'login' })(UserForm)
+// const HorizontalUserForm = Form.create({ name: 'login' })(UserForm)
 
 
 
-const mapStateToProps = (state) => {
-  return {
-    userProfiles: state.form.profiles,
-    tableStyle: state.form.style,
-    userAges: state.form.ages,
-    userHobbies: state.form.hobbies,
-    userDobs: state.form.dobs,
+// const mapStateToProps = (state) => {
+//   return {
+//     userProfiles: state.form.profiles,
+//     tableStyle: state.form.style,
+//     userAges: state.form.ages,
+//     userHobbies: state.form.hobbies,
+//     userDobs: state.form.dobs,
 
-  };
-}
+//   };
+// }
 
-export default connect(mapStateToProps, { createProfile, getProfiles, userDob, userHobby, userStyle, rmStyle, userAge })(HorizontalUserForm);
+// const mapDispatchToProps = { createProfile, getProfiles, userDob, userHobby, userStyle, rmStyle, userAge }
+
+// export default connect(mapStateToProps, mapDispatchToProps )(HorizontalUserForm);
+
+// export default HorizontalUserForm;
+
+
+export default Form.create()(UserForm);
