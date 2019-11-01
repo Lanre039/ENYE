@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch} from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch }  from 'react-redux';
+
 import 'antd/dist/antd.css'
 import { Form, Input, Icon, Select, Button, Table, DatePicker } from 'antd';
 import './UserForm.css';
-import {createProfile, userDob, userHobby, rmStyle, userAge } from '../../actions';
+// import {createProfile, getProfiles, userDob, userHobby, rmStyle, userAge } from '../../actions';
+import actionCreators  from '../../actions/index';
 
+import {  firebaseConfig } from '../../config/firebase';
+import { database } from '../../config/firebase';
 
-
-
+import uuid from 'uuid';
 const { Option } = Select;
 
 
 let dob, age, hobby;
 const FormItem = Form.Item;
 
-
+var ref = database.ref('items');
+const formData = (fname, fAges, fDob, fHobbies )  => {
   
+    const uuidv5 = require('uuid/v5');
+    var dataref = ref.push({
+      userId: uuid("https://www.terraform.io/", uuidv5.URL),
+      firstName: fname.FirstName,
+      lastName: fname.LastName,
+      hobby: fHobbies,
+      dobs: fDob,
+      ages: fAges
+    });
+  console.log(dataref);
+}
+
+// var datas = [];
+// ref.on('child_added', function(snap) {
+//   datas.push(snap.val());
+//   console.log(datas);
+// })
+
 
 function FormHead() {
     const [formHead, setFormHead] = useState('Input Details Here');
@@ -26,18 +48,17 @@ function FormHead() {
  }
 
 function UserForm(props) {
-
-
   
-  const listOfProfile = useSelector(state => state.form.profiles);
+  const listOfUserId = useSelector(state => state.form.userId);
+  const listOfFirstName = useSelector(state => state.form.firstName);
+  const listOfLastName = useSelector(state => state.form.lastName);
   const listOfAge = useSelector(state => state.form.ages);
   const listOfHobbies = useSelector(state => state.form.hobbies);
   const listOfDobs = useSelector(state => state.form.dobs);
   const tableStyle = useSelector(state => state.form.style);
 
 
-
-  const dispatch = useDispatch();
+  
 
   
   const onSelect = (value) => {
@@ -62,6 +83,8 @@ function UserForm(props) {
   }
 
   const { getFieldDecorator } = props.form;
+
+  const dispatch = useDispatch();
   
   const handleSubmit = e => {
     e.preventDefault()
@@ -70,14 +93,15 @@ function UserForm(props) {
       
           props.form.resetFields();
 
-        
-        console.log('Received values of form: ', values)
 
-        dispatch(createProfile(values));
-        dispatch(userAge(age));
-        dispatch(userDob(dob));
-        dispatch(userHobby(hobby));
-        dispatch(rmStyle());
+        // dispatch(createProfile(values));
+        // // dispatch(getProfiles(values));
+        // dispatch(userAge(age));
+        // dispatch(userDob(dob));
+        // dispatch(userHobby(hobby));
+        dispatch(actionCreators.rmStyle());
+  
+        formData(values, age, dob, hobby);
 
         // this.props.createProfile(values);
         // this.props.userAge(age);
@@ -88,6 +112,19 @@ function UserForm(props) {
       }
     })
   
+  }
+
+  
+  const renderUserId = () => {
+  
+    return listOfUserId.map((id, index) => {
+      const dataId = id.split('-', 1)
+      return (
+          <tr key={index}>
+          <td>{dataId}</td>
+        </tr>
+      );
+    });
   }
   
   const renderAges = () => {
@@ -124,10 +161,10 @@ function UserForm(props) {
   
   
   const renderFirstName = () => {
-    return listOfProfile.map((profile, index) => {
+    return listOfFirstName.map((firstName, index) => {
       return (
         <tr key={index}>
-          <td>{profile.FirstName}</td>
+          <td>{firstName}</td>
         </tr>
         
       )
@@ -135,10 +172,10 @@ function UserForm(props) {
   }
 
   const renderLastName = () => {
-    return listOfProfile.map((profile, index) => {
+    return listOfLastName.map((lastName, index) => {
       return (
         <tr key={index}>
-          <td>{profile.LastName}</td>
+          <td>{lastName}</td>
         </tr>
       )
     });
@@ -146,6 +183,10 @@ function UserForm(props) {
   
 
   const columns = [
+    {
+        title: 'User Id',
+        dataIndex: 'userid',
+      },
     {
         title: 'First Name',
         dataIndex: 'fname',
@@ -170,6 +211,7 @@ function UserForm(props) {
     const data = [
       {
         key: '1',
+        userid: renderUserId(),
         fname: renderFirstName(),
         lname: renderLastName(),
         dob: renderDobs(),
@@ -237,7 +279,7 @@ function UserForm(props) {
         <div style={tableStyle}>
         <h4 style={{fontSize: "1.5rem"}}>Here are the details you filled above.</h4>
         <Table columns={columns} dataSource={data} size="middle" />
-        
+        {/* <p>{renderUserId()}</p> */}
         </div>
         
       </div>
